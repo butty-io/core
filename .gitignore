@@ -1,0 +1,7 @@
+node_modules
+.settings
+.project
+.idea
+grunt-tests-results.txt
+docs
+config.js
