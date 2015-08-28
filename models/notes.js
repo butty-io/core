@@ -5,20 +5,54 @@
 var fs  = require('fs');
 var path= require('path');
 var Q   = require('q');
-var CONFIGPATH = './../config.js';
+var config = require('./../config.js');
 
 function Bnote(){
-  this.files = undefined;
+  //this.files = undefined;
 }
 exports.bnote = Bnote;
 
-Bnote.prototype.create = function(note, file){
+Bnote.prototype.add = function(note, file){
   var self = this;
+
+  var noteFolder = path.join(path.dirname(file), config.noteFolder);
+  var noteFile   = path.join(noteFolder, self._noteName(file));
+
+  return self._checkNotesFolder(noteFolder)
+    .then(function(){
+      return self._appendFile(noteFile, note);
+    });
+};
+
+Bnote.prototype._noteName = function(filename){
+  return path.join(config.notePrefix + path.basename(filename) + config.noteSuffix);
+};
+
+Bnote.prototype._checkNotesFolder = function(path){
+  var self = this;
+
+  return self._exists(path)
+    .then(function(exists){
+      if(!exists){
+        return self._mkdir(path);
+      }
+    });
+};
+
+Bnote.prototype._exists = function(path){
   var deferred = Q.defer();
 
-  var notefile = path.join(path.dirname(file), config.notesFolder ,self._noteName(path.basename(file)));
+  fs.exists(path, function(exists){
+    deferred.resolve(exists);
+  });
 
-  fs.appendFile(notefile, note, function(err){
+  return deferred.promise;
+};
+
+Bnote.prototype._appendFile = function(file, msg){
+  var deferred = Q.defer();
+
+  fs.appendFile(file, msg, function(err){
     if(err) deferred.reject(err);
     deferred.resolve();
   });
@@ -26,31 +60,12 @@ Bnote.prototype.create = function(note, file){
   return deferred.promise;
 };
 
-Bnote.prototype._noteName = function(filename){
-  var config = require(CONFIGPATH);
-
-  return path.join(config.notesPrefix + filename + config.notesSuffix);
-};
-
-Bnote.prototype._checkNotesFolder = function(file){
-  var self = this;
-  var config = require(CONFIGPATH);
-
-  var notesFolder = path.join(path.basename(file), config.notesFolder);
-  self._exists(notesFolder)
-    .then(function(exists){
-      if(!exists){
-        
-      }
-    })
-};
-
-Bnote.prototype._exists = function(path){
-  var self = this;
+Bnote.prototype._mkdir = function(path){
   var deferred = Q.defer();
 
-  fs.exists(path, function(exists){
-    deferred.resolve(exists);
+  fs.mkdir(path, function(err){
+    if(err) deferred.reject(err);
+    deferred.resolve();
   });
 
   return deferred.promise;

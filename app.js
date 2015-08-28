@@ -29,8 +29,8 @@ Bfs.ls()
   .then(function(files){
     console.log(files);
 
-    var file = path.join(Bfs.wherami(), files.pop());
-    return Bnote.create('Das ist eine Testnotiz', file);
+    var file = path.join(Bfs.wherami(), files[2]);
+    return Bnote.add('Das ist eine Testnotiz', file);
   })
   .fail(function(err){
     console.log('promise:fail:',err);
