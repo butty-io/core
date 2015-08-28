@@ -1,30 +1,34 @@
 /**
  * Created by Thomas on 27.08.2015.
  */
-
 var fs = require('fs');
 var Q = require('q');
 
 /**
- * bfs - butty-fs Class
+ * Bfs - butty-fs Class
  *
  * Promised-based API
  */
-function bfs(){
-  this.folderlist = undefined;
+function Bfs(){
+  this._folder = undefined; // current folder
 }
-exports.bfs = bfs();
+exports.bfs = Bfs;
 
-/**
- * Async readdir
- * @param folder
- * @returns {*|promise}
- */
-bfs.prototype.readdir = function(folder){
+Bfs.prototype.cd = function(path){
+  // TODO assert path
+  this._folder = path;
+};
+
+
+Bfs.prototype.wherami = function(){
+  return this._folder;
+};
+
+Bfs.prototype.ls = function(){
   var self = this;
   var deferred = Q.defer();
 
-  fs.readdir(folder, function(err, files){
+  fs.readdir(self._folder, function(err, files){
     if(err) deferred.reject(err);
     deferred.resolve(files);
   });

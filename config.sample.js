@@ -2,7 +2,8 @@
  * Sample Configuration
  */
 var config = {
-  test: 'test',
+  notesPrefix : '.',
+  notesSuffix : '.Bnote',
 };
 	
 module.exports = config;
